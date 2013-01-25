@@ -54,13 +54,10 @@ public class HadooSh {
 		// config.set("fs.default.name", "hdfs://localhost:9000");
 		fs = FileSystem.get(config);
 
-		p = fs.getWorkingDirectory();
+		p = fs.getWorkingDirectory().makeQualified(fs);
 		home = new Path(p.toString());
-
-		String homeStr = home.toString();
-		rootStr = homeStr.substring(0, homeStr.indexOf("/user/", 0));
-		root = new Path(rootStr);
-
+                root = home.getParent().getParent();
+		rootStr = root.toString();
 		ConsoleReader reader = new ConsoleReader();
 		reader.setBellEnabled(false);
 		List completors = new LinkedList();
