@@ -1,19 +1,15 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,12 +21,10 @@ import org.apache.avro.io.DatumWriter;
 import org.apache.avro.io.Encoder;
 import org.apache.avro.io.JsonEncoder;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.PathFilter;
 import org.codehaus.jackson.JsonEncoding;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
@@ -457,29 +451,26 @@ public class HadooSh {
 	private static class HDFSCompletor implements Completor {
 		public int complete(final String buffer, final int cursor,
 				final List clist) {
-			String myBuffer = (buffer == null ? "" : buffer) + "*";
-      String pathDir = new Path(myBuffer).getParent().toString();
+			String myBuffer = (buffer == null ? "" : buffer)
+                      + "*"; // avoid empty path
+      final Path glob = new Path(myBuffer);
+      final Path parent = glob.getParent();
 			FileStatus[] completions;
 			try {
-				completions = myBuffer.startsWith("/")
-          ? fs.globStatus(new Path(myBuffer))
-          : fs.globStatus(new Path(p, myBuffer));
+				completions = glob.isAbsolute()
+          ? fs.globStatus(glob)
+          : fs.globStatus(new Path(p, glob));
 			} catch (IOException e) {
 				completions = new FileStatus[0];
 				e.printStackTrace();
 			}
 
-			String[] candidates = new String[completions.length];
-
 			for (int i = 0; i < completions.length; i++) {
-				candidates[i] = completions[i].getPath().getName();
-				if (pathDir.length() > 0) {
-					candidates[i] = pathDir + "/" + candidates[i];
-				}
-        candidates[i] += completions[i].isDir() ? "/" : " ";
-        clist.add(candidates[i]); // dir listing is sotred
+        clist.add(
+            new Path(parent, completions[i].getPath().getName()).toString()
+          + (completions[i].isDir() ? "/" : " "));
 			}
-      return clist.size() == 0 ? - 1 : 0;
+      return clist.size() == 0 ? -1 : 0;
 		}
 	}
 
