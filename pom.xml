@@ -25,5 +25,10 @@
       <artifactId>s3filesystem</artifactId>
       <version>${mapr-version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.avro</groupId>
+      <artifactId>avro</artifactId>
+      <version>1.4.1</version>
+    </dependency>
   </dependencies>
 </project>
