@@ -58,4 +58,11 @@
       <version>1.0</version>
     </dependency>
   </dependencies>
+  <build>
+    <resources>
+      <resource>
+        <directory>conf</directory>
+      </resource>
+    </resources>
+  </build>
 </project>
