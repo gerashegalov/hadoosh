@@ -37,6 +37,10 @@ Planned future actions:
 
 Known bugs:
 -----------
+- piped commands that contain quotes such as
+```bash
+cat file | cut -d" " -f 1
+```
 
 Build HadooSh:
 --------------
